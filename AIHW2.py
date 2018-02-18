@@ -6,6 +6,9 @@ from copy import deepcopy
 goal_state = [1, 2, 3, 8, 0, 4, 7, 6, 5]
 found = set()
 
+"""
+Initializes a random state for the 8 puzzle.
+"""
 def initialize_random_state():
     lst = []
     while len(lst) < 9:
@@ -14,27 +17,34 @@ def initialize_random_state():
             lst.append(num)
     return lst
 
+"""
+Determines if a state is in the goal_state
+"""
 def is_solved(my_lst):
     return my_lst == goal_state
 
+"""
+Prints a state in the form of a 8 puzzle
+"""
 def square_print(my_lst):
-    """
-    if 0 in my_lst:
-        index = my_lst.index(0)
-        my_lst[index] = '-'
-        """
     for i in range(3):
         s = ""
         for j in range(3):
-            s += (str(my_lst[i*3+j]) if my_lst[i*3+j] else '-') + ' ' 
+            s += (str(my_lst[i*3+j]) if my_lst[i*3+j] else unichr(0x2588)) + ' ' 
         print(s)
 
+"""
+Hashes a state
+"""
 def list_to_num(my_lst):
     val = 0
     for i in my_lst:
         val = val*10 + i
     return val
 
+"""
+Determines if a state is solvable and provides the transitions if solvable
+"""
 def solve(my_lst):
     q = Queue.Queue()
     finished = True
@@ -77,11 +87,44 @@ def solve(my_lst):
             found.add(state_num)
     if finished:
         square_print(goal_state)
-        print("Solved in %d steps" % num_steps)
+        print("solved in %d steps" % num_steps)
     else:
         square_print(my_lst)
-        print("Unsolvable")
+        print("unsolvable")
+
+"""
+Parses input to state
+"""
+def input_to_state(inp):
+    state_strings = inp.split(" ")
+    state = []
+    for string in state_strings:
+        state.append(int(string))
+    return state
 
 if __name__ == "__main__":
-    lst = initialize_random_state()
-    solve(lst) 
+    print("Input a state represented as numbers 0 to 8")
+    print("with spaces in between them. For example,")
+    print("")
+    print("0 1 2 3 4 5 6 7 8")
+    print("")
+    print("to represent")
+    print("")
+    s = unichr(0x2588) + " 1 2"
+    print(s)
+    print("3 4 5")
+    print("6 7 8")
+    print("")
+    print("Enter 1 for randomized input. Enter 0 to quit")
+    while True:
+        print("")
+        state = []
+        state_string = raw_input("Enter a state: ")
+        if state_string == "1":
+            state = initialize_random_state()
+        elif state_string == "0":
+            print("Program terminated")
+            break
+        else:
+            state = input_to_state(state_string)
+        solve(state)
