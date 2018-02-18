@@ -1,29 +1,29 @@
 import random
 
-my_list = [] #initialize empty list
+# 0 represents the empty slot
+goal_state = [1, 2, 3, 8, 0, 4, 7, 6, 5]
 
+def initialize_random_state():
+    lst = []
+    while len(lst) < 9:
+        num = random.randint(0,8)
+        if num not in lst:
+            lst.append(num)
+    return lst
 
+def is_solved(my_lst):
+    return my_lst == goal_state
 
-while len(my_list) < 9:
-    num = random.randint(1, 9)
-    if num not in my_list:
-        my_list.append(num)
+def square_print(my_lst):
+    if 0 in my_lst:
+        index = my_lst.index(0)
+        my_lst[index] = '-'
+    for i in range(3):
+        s = ""
+        for j in range(3):
+            s += str(my_lst[i*3+j]) + ' ' 
+        print(s)
 
-
-goal_state = sorted(my_list)
-if(my_list == goal_state):
-    print("You did it!")
-else:
-    print("u suk")
-
-def square_print(my_list):
-    if 9 in my_list:
-        index = my_list.index(9)
-        my_list[index] = '-'
-    print(my_list[0:3])
-    print(my_list[3:6])
-    print(my_list[6:9])
-
-
-
-square_print(my_list)
+if __name__ == "__main__":
+    lst = initialize_random_state()
+    square_print(lst)
