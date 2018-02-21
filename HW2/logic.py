@@ -11,16 +11,24 @@ class Step(object):
         self.right = None
         self.width = len(self.statement)
 
-exe = "( x AND z ) OR y"
-
-
 queue = []
 
 def construct_tree(string):
     del queue[:]
-    root = Step(string.strip())
-    build_tree(root, 0)
+    split = string.split(", ")
+    root = Step(split[0].strip())
+    if len(split) > 1:
+        for i in range(1, len(split) - 1):
+            queue.append(split[i])
+        queue.append("NEG ( " + split[-1] + " )")
+    valid = build_tree(root, 0)
     print_tree(root)
+    if len(split) > 1:
+        if valid:
+            string += " is valid"
+        else:
+            string += " is not valid"
+        print(string)
 
 def print_tree(root):
     q = Queue.Queue()
@@ -84,7 +92,6 @@ def remove_outer_parantheses(string):
         return remove_outer_parantheses(string[2:len(string) - 2])
 
 def build_tree(node, ind):
-    # Needs to track up to see if there's a conflict
     # Add equals
     no_par_without_neg = ""
     neg_front_offset = 0
@@ -100,14 +107,9 @@ def build_tree(node, ind):
             node.statement = remove_outer_parantheses(node.statement)
     else:
         node.statement = remove_outer_parantheses(node.statement)
+
     node.width = len(node.statement)
     neg_back_offset += len(node.statement)
-
-    """
-    print(node.statement)
-    print(len(queue) - ind)
-    print("")
-    """
 
     split = node.statement.split(" ")
     if neg_front_offset == 6:
@@ -116,6 +118,7 @@ def build_tree(node, ind):
         split.pop()
     reverse_order = ["ARROW", "OR", "AND"]
     break_loop = False
+    closed = True
     for i in range(len(reverse_order)):
         par = 0
         length = 0
@@ -160,11 +163,10 @@ def build_tree(node, ind):
                         node.right= Step( "NEG ( " + remove_outer_parantheses( rite_str ) + " )" )
                         node.right.parent = node
                 if node.child == None:
-                    build_tree(node.left, ind)
-                    build_tree(node.right, ind)
+                    closed = build_tree(node.left, ind) and build_tree(node.right, ind)
                     node.width = max(node.width, node.left.width + node.right.width + 4)
                 else:
-                    build_tree(node.child, ind)
+                    closed = build_tree(node.child, ind)
                     queue.pop()
                     node.width = max(node.width, node.child.width)
                 break
@@ -179,38 +181,53 @@ def build_tree(node, ind):
         if split[0] == "NEG" and split[1] == "NEG":
             node.child = Step(node.statement[8:])
             node.child.parent = node
-            build_tree(node.child, ind)
+            closed = build_tree(node.child, ind)
             node.width = max(node.width, node.child.width)
-        elif len(queue) != ind:
-            node.child = Step(queue[ind])
-            node.child.parent = node
-            build_tree(node.child, ind + 1)
-            node.width = max(node.width, node.child.width)
+        else:
+            # Atomic so check if there is a contradiction
+            contra = "NEG " + node.statement
+            if len(contra) >= 8 and contra[:8] == "NEG NEG ":
+                contra = remove_outer_parantheses(contra[8:])
+            temp = node.parent
+            contra_found = False
+            while temp != None and not contra_found:
+                if temp.statement == contra:
+                    contra_found = True
+                temp = temp.parent
+            if contra_found:
+                node.statement += "X"
+                node.width = len(node.statement)
+                closed = True
+            elif len(queue) != ind:
+                node.child = Step(queue[ind])
+                node.child.parent = node
+                closed = build_tree(node.child, ind + 1)
+                node.width = max(node.width, node.child.width)
+            else:
+                node.statement += "O"
+                node.width = len(node.statement)
+                closed = False
+    return closed
 
         
 
 if __name__ == "__main__":
-    s = "( ( a AND b ) OR c )"
-    s2 = "( ( a OR b ) AND c )"
-    s3 = "( NEG ( a AND b ) OR c )"
-    s4 = "( NEG ( a OR b ) AND NEG c )"
-    s5 = "( NEG ( a AND b ) AND NEG c )"
-    s6 = "NEG ( NEG ( a AND b ) AND NEG c )"
-    s7 = "a ARROW b"
-    s8 = "NEG ( NEG a ARROW b OR c )"
-    construct_tree(s)
-    print("\n")
-    construct_tree(s2)
-    print("\n")
-    construct_tree(s3)
-    print("\n")
-    construct_tree(s4)
-    print("\n")
-    construct_tree(s5)
-    print("\n")
-    construct_tree(s6)
-    print("\n")
-    construct_tree(s7)
-    print("\n")
-    construct_tree(s8)
-    # logic_string = raw_input("Enter a well-formed statement")
+    print("")
+    print("Enter your argument, seperate statements with ', ' and separate every")
+    print("deliminator, variable, and operator by one space. Quantifiers, functions,")
+    print("and predicates are NOT functional yet. Will be implemented by homework 3.")
+    print("Enter 'QUIT' to exit the program")
+    print("Valid inputs: ")
+    print("'a OR b, a, b' -> invalid argument")
+    print("'a AND ( b ARROW c ), a, NEG c, NEG b' -> valid argument")
+    print("Invalid inputs: ")
+    print("'(a AND b)' should be '( a AND b )'")
+    print("'FORALL a Pa' since predicates and quantifiers are not implemented yet.")
+    print("")
+    while True:
+        logic_string = raw_input("Enter a well-formed statement: ")
+        if(logic_string == "QUIT"):
+            print("Program exiting\n")
+            break
+        construct_tree(logic_string)
+        print("\n")
