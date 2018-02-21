@@ -21,7 +21,8 @@ def construct_tree(string):
         for i in range(1, len(split) - 1):
             queue.append(split[i])
         queue.append("NEG ( " + split[-1] + " )")
-    valid = build_tree(root, 0)
+    valid = build_tree(root, 0, set())
+    print("")
     print_tree(root)
     if len(split) > 1:
         if valid:
@@ -37,27 +38,34 @@ def print_tree(root):
     while True:
         level_len = q.qsize()
         level_str = ""
+        separ_str = ""
         non_int_found = False
         for i in range(level_len):
             node = q.get()
             if isinstance(node, int):
                 level_str += ' ' * node
+                separ_str += ' ' * node
                 q.put(node)
             else:
                 #print("DEBUG " + node.statement)
                 non_int_found = True
                 left_spaces = (node.width - len(node.statement))/2
                 rite_spaces = node.width - len(node.statement) - left_spaces
-                level_str += '-' * left_spaces
+                level_str += ' ' * left_spaces
                 level_str += node.statement
-                level_str += '-' * rite_spaces
+                level_str += ' ' * rite_spaces
                 #print("DEBUG  2" + level_str)
                 if node.left == None and node.child == None:
                     q.put(node.width)
+                    separ_str += ' ' * node.width
                 elif node.left == None:
                     if node.child.width < node.width:
                         node.child.width = node.width
                     q.put(node.child)
+                    left_separ = ( node.width - 1 ) / 2
+                    separ_str += ' ' * left_separ
+                    separ_str += '|'
+                    separ_str += ' ' * ( node.width - 1 - left_separ )
                 else:
                     left_pad = 0
                     rite_pad = 0
@@ -71,11 +79,25 @@ def print_tree(root):
                     q.put(node.right)
                     if rite_pad != 0:
                         q.put(rite_pad)
+                    separ_str += ' ' * ( left_pad )
+                    separ_str += ' ' * ( ( ( node.left.width - 1 ) / 2 ) + 1 )
+                    separ_str += '/'
+                    separ_str += ' ' * ( node.left.width - 1 - ( node.left.width - 1 ) / 2 + 2 + ( node.right.width - 1 ) / 2 )
+                    separ_str += '\\' 
+                    separ_str += ' ' * ( node.right.width - ( node.right.width - 1 ) / 2 )
+                    separ_str += ' ' * ( rite_pad )
+
+                    level_str = level_str[:(-1*(left_spaces + len(node.statement) + rite_spaces))]
+                    left_dash = max( 0, left_spaces - ( left_pad + ( node.left.width - 1 ) / 2 + 1 ) - 1 )
+                    rite_dash = max( 0, rite_spaces - ( rite_pad +node.right.width - ( node.right.width - 1 ) / 2 ) - 1 )
+                    level_str += ' ' * ( left_spaces - left_dash ) +  '-' * left_dash
+                    level_str += node.statement
+                    level_str += '-' * rite_dash + ' ' * ( rite_spaces - rite_dash )
         if not non_int_found:
             break
         else:
             print(level_str)
-            print("")
+            print(separ_str)
 
 def remove_outer_parantheses(string):
     if string[0] != "(" or string[len(string) - 1] != ")":
@@ -91,11 +113,14 @@ def remove_outer_parantheses(string):
     if par == 0:
         return remove_outer_parantheses(string[2:len(string) - 2])
 
-def build_tree(node, ind):
+def build_tree(node, ind, statement_set):
     # Add equals
+
     no_par_without_neg = ""
     neg_front_offset = 0
     neg_back_offset = 0
+
+    node.statement = remove_outer_parantheses(node.statement)
     if len(node.statement) > 4 and node.statement[:3] == "NEG":
         without_neg = node.statement[4:]
         no_par_without_neg = remove_outer_parantheses(without_neg)
@@ -105,8 +130,9 @@ def build_tree(node, ind):
             neg_back_offset -= 2
         else:
             node.statement = remove_outer_parantheses(node.statement)
-    else:
-        node.statement = remove_outer_parantheses(node.statement)
+
+    remove_node = node.statement not in statement_set
+    statement_set.add(node.statement)
 
     node.width = len(node.statement)
     neg_back_offset += len(node.statement)
@@ -119,6 +145,7 @@ def build_tree(node, ind):
     reverse_order = ["ARROW", "OR", "AND"]
     break_loop = False
     closed = True
+    validity_str = ""
     for i in range(len(reverse_order)):
         par = 0
         length = 0
@@ -139,9 +166,7 @@ def build_tree(node, ind):
                         node.right.parent = node
                         node.width = max(node.width, node.left.width + node.right.width + 4)
                     else:                               # Negated Implication
-                        node.child= Step( left_str )
-                        node.child.parent = node
-                        queue.append("NEG ( " + remove_outer_parantheses( rite_str ) + " )")
+                        rite_str = "NEG ( " + remove_outer_parantheses( rite_str ) + " )"
                 elif i == 1:
                     if neg_front_offset == 0:           # Disjunction
                         node.left = Step( left_str )
@@ -149,26 +174,32 @@ def build_tree(node, ind):
                         node.right= Step( rite_str )
                         node.right.parent = node
                     else:                               # Negated Disjunction
-                        node.child= Step( "NEG ( " + remove_outer_parantheses( left_str ) + " )" )
-                        node.child.parent = node
-                        queue.append("NEG ( " + remove_outer_parantheses( rite_str ) + " )")
+                        left_str = "NEG ( " + remove_outer_parantheses( left_str ) + " )"
+                        rite_str = "NEG ( " + remove_outer_parantheses( rite_str ) + " )"
                 else:
-                    if neg_front_offset == 0:           # Conjunction
-                        node.child= Step( left_str )
-                        node.child.parent = node
-                        queue.append( rite_str )
-                    else:                               # Negated Conjunction
+                    if neg_front_offset != 0:                               # Negated Conjunction
                         node.left = Step( "NEG ( " + remove_outer_parantheses( left_str ) + " )" )
                         node.left.parent = node
                         node.right= Step( "NEG ( " + remove_outer_parantheses( rite_str ) + " )" )
                         node.right.parent = node
-                if node.child == None:
-                    closed = build_tree(node.left, ind) and build_tree(node.right, ind)
-                    node.width = max(node.width, node.left.width + node.right.width + 4)
+                if node.left == None:
+                    if left_str not in statement_set:
+                        queue.append( left_str )
+                    if rite_str not in statement_set and rite_str != left_str:
+                        queue.append( rite_str )
+                    if len(queue) > ind:
+                        node.child = Step(queue[ind])
+                        node.child.parent = node
+                        closed = build_tree(node.child, ind + 1, statement_set)
+                        node.width = max(node.width, node.child.width)
+                    if rite_str not in statement_set and rite_str != left_str:
+                        queue.pop()
+                    if left_str not in statement_set:
+                        queue.pop()
                 else:
-                    closed = build_tree(node.child, ind)
-                    queue.pop()
-                    node.width = max(node.width, node.child.width)
+                    closed = build_tree(node.left, ind, statement_set)
+                    closed = build_tree(node.right, ind, statement_set) and closed
+                    node.width = max(node.width, node.left.width + node.right.width + 4)
                 break
             length += len(split_str) + 1
         if break_loop:
@@ -176,12 +207,17 @@ def build_tree(node, ind):
 
     if not break_loop:
         if neg_front_offset == 6:
+            if remove_node:
+                statement_set.remove(node.statement)
             node.statement = "NEG " + no_par_without_neg 
+            remove_node = node.statement not in statement_set
+            statement_set.add(node.statement)
+            
         split = node.statement.split(" ")
-        if split[0] == "NEG" and split[1] == "NEG":
+        if split[0] == "NEG" and split[1] == "NEG" and ( node.statement[8:] not in statement_set ):
             node.child = Step(node.statement[8:])
             node.child.parent = node
-            closed = build_tree(node.child, ind)
+            closed = build_tree(node.child, ind, statement_set)
             node.width = max(node.width, node.child.width)
         else:
             # Atomic so check if there is a contradiction
@@ -195,18 +231,29 @@ def build_tree(node, ind):
                     contra_found = True
                 temp = temp.parent
             if contra_found:
-                node.statement += "X"
+                validity_str = "X"
                 node.width = len(node.statement)
                 closed = True
-            elif len(queue) != ind:
-                node.child = Step(queue[ind])
-                node.child.parent = node
-                closed = build_tree(node.child, ind + 1)
-                node.width = max(node.width, node.child.width)
-            else:
-                node.statement += "O"
+            elif len(queue) > ind:
+                while ind < len(queue) and remove_outer_parantheses(queue[ind]) in statement_set:
+                    ind += 1
+                if ind < len(queue):
+                    node.child = Step(queue[ind])
+                    node.child.parent = node
+                    closed = build_tree(node.child, ind + 1, statement_set)
+                    node.width = max(node.width, node.child.width)
+            if not contra_found and ind >= len(queue):
+                validity_str = "O"
                 node.width = len(node.statement)
                 closed = False
+
+    if remove_node:
+        statement_set.remove(node.statement)
+
+    if validity_str != "":
+        node.statement += validity_str
+        node.width = len(node.statement)
+
     return closed
 
         
