@@ -30,7 +30,7 @@ def square_print(my_lst):
     for i in range(3):
         s = ""
         for j in range(3):
-            s += (str(my_lst[i*3+j]) if my_lst[i*3+j] else unichr(0x2588)) + ' ' 
+            s += (str(my_lst[i*3+j]) if my_lst[i*3+j] else '-') + ' '
         print(s)
 
 """
@@ -55,10 +55,10 @@ def solve(my_lst):
         finished = False
     num_steps = 0
     while not q.empty() and not finished:
-        tup = q.get() 
+        tup = q.get()
         state = tup[0]
         path = tup[1]
-        loc = state.index(0) 
+        loc = state.index(0)
         loc_i = loc / 3
         loc_j = loc % 3
         for n_i in range(4):
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     print("")
     print("to represent")
     print("")
-    s = unichr(0x2588) + " 1 2"
+    s = '-'+ " 1 2"
     print(s)
     print("3 4 5")
     print("6 7 8")
