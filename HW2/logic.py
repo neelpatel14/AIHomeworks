@@ -109,19 +109,6 @@ def print_tree(root):
             print(level_str)
             print(separ_str)
 
-def remove_outer_parantheses(string):
-    if string[0] != "(" or string[len(string) - 1] != ")":
-        return string
-    par = 0
-    for i in range(1, len(string) - 1):
-        if string[i] == "(":
-            par += 1
-        elif string[i] == ")":
-            par -= 1
-            if par < 0:
-                return string
-    if par == 0:
-        return remove_outer_parantheses(string[2:len(string) - 2])
 
 def build_tree(node, ind, statement_set):
     # Add equals
@@ -271,8 +258,8 @@ def build_tree(node, ind, statement_set):
 if __name__ == "__main__":
     print("")
     print("Enter your argument, seperate statements with ', ' and separate every")
-    print("deliminator, variable, and operator by one space. Quantifiers, functions,")
-    print("and predicates are NOT functional yet. Will be implemented by homework 3.")
+    print("variable, and operator by one space. Quantifiers, functions, and")
+    print("predicates are NOT functional yet. Will be implemented by homework 3.")
     print("Enter 'QUIT' to exit the program")
     print("Valid inputs: ")
     print("'a OR b, a, b' -> invalid argument")
