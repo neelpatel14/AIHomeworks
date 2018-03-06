@@ -17,10 +17,20 @@ def construct_tree(string):
     del queue[:]
     split = string.split(", ")
     root = Step(split[0].strip())
+    insatis = False
     if len(split) > 1:
         for i in range(1, len(split) - 1):
             queue.append(split[i])
+        temp_node = Step(split[0].strip())
+        insatis = build_tree(temp_node, 0, set())
+        if insatis:
+            print("")
+            print_tree(temp_node)
+            print("")
+            print("Premises are insatisfiable, so invalid")
         queue.append("NEG ( " + split[-1] + " )")
+    if insatis:
+        return
     valid = build_tree(root, 0, set())
     print("")
     print_tree(root)
