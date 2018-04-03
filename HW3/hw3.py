@@ -34,8 +34,19 @@ def get_chicken_move(state):
 		"team-code": state["team-code"],
 	}
 
+
+def get_connect_move(state):
+
+	return {
+		"move": random.randint(1,state[columns]) * random.random(),
+		"team-code": state["team-code"],
+	}
+
 def get_move(state):
 	if state["game"] == "chicken":
 		return get_chicken_move(state)
+
+	if state["game"] == "connect_more":
+		return get_connect_move(state)
 
 print (get_move(state))
