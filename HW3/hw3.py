@@ -16,11 +16,21 @@ state = {
 
 # This will load whatever dictionary you last saved, stub included to drive example,
 #   isn't actual function
-def load_info(): return {}
+def load_info():
+	return {}
 
 # This will save (and overwrite) whatever dictionary you last saved
 # Stub included to drive example, isn't actual function
-def save_info(info): print(info)
+def save_info(info):
+	new_info  = load_info() # load the previous data
+
+	if state["game"] == "chicken":
+		#add new chicken info to old data
+
+	if state["game"] =="connect_more":
+		#add new connect_more data to old data
+
+
 
 # returns a random move (for sake of example)
 def get_chicken_move(state):
@@ -38,7 +48,7 @@ def get_chicken_move(state):
 def get_connect_move(state):
 
 	return {
-		"move": random.randint(1,state[columns]) * random.random(),
+		"move": random.randint(1,state["columns"]),
 		"team-code": state["team-code"],
 	}
 
