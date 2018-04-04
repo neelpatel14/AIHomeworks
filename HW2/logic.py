@@ -80,11 +80,10 @@ def print_tree(root):
                 level_str += ' ' * left_spaces
                 level_str += node.statement
                 level_str += ' ' * rite_spaces
-                #print("DEBUG  2" + level_str)
-                if node.left == None and node.child == None:
+                if node.left == None and node.child == None:  #Leaf node
                     q.put(node.width)
                     separ_str += ' ' * node.width
-                elif node.left == None:
+                elif node.left == None:                       #Child exists
                     if node.child.width < node.width:
                         node.child.width = node.width
                     q.put(node.child)
@@ -92,7 +91,7 @@ def print_tree(root):
                     separ_str += ' ' * left_separ
                     separ_str += '|'
                     separ_str += ' ' * ( node.width - 1 - left_separ )
-                else:
+                else:                                         #Left and Right exist
                     left_pad = 0
                     rite_pad = 0
                     if node.left.width + 4 + node.right.width < node.width:
@@ -284,7 +283,7 @@ def build_tree(node, ind, statement_set, names, forall_dict):
             forall_dict[(split[1], forall_pred)] = set()
     else:
         atomic = True
-        reverse_order = ["ARROW", "OR", "AND"]
+        reverse_order = ["=", "ARROW", "OR", "AND"]
         for i in range(len(reverse_order)):
             par = 0
             length = 0
