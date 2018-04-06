@@ -389,7 +389,7 @@ def get_connect_move(state):
             opp_best_move = opp_temp
             opp_best_column = x
 
-    if my_best_move > opp_best_move:
+    if my_best_move >= opp_best_move:
         return {
             "move": my_best_column,  # Column in which you will move (create mark "your-token")
             "team-code": "eef8976e"  # Must match the code received in the state object
