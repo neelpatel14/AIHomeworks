@@ -37,26 +37,26 @@ def get_move(state):
     # info = load_data()
 
 
-    num_columns = state["columns"]
-    num = state["connect_n"]
+    num_columns = state["columns"] #number of columns (since there's no roof)
+    num = state["connect_n"] #number we have to connect in a row
 
-    player = state["your-token"]
+    player = state["your-token"] #Either "R" or "B"
     if (player == "R"):
         opponent = "B"
     else:
         opponent = "R"
 
     print(state["board"])
-    h = 0
+    h = 0 #initializing height h
 
 
 
-    for i in range(num_columns):
+    for i in range(num_columns): #choosing the height to go up to, since we dont want to add infinite spots going up, its good to have an upper bound on the board
         col = len(state["board"][i])
         if h < col:
             h = col
 
-    set_vars(h, num_columns, player, num)
+    set_vars(h, num_columns, player, num) #setter for the global variables so other functions can use them
 
     # But you must return a valid move that looks like the following:
     return {
