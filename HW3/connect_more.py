@@ -17,7 +17,7 @@ state = {
         ["R", "Y"],
         ["R"],
         [],
-        ["R", ],
+        ["R", "Y", "Y", "Y"],
         ["Y", "Y"],
         [],
     ]
@@ -31,6 +31,376 @@ def set_vars(h, w, p, num):
     n = num
 
 
+def valid_add(col, state): #Checks to see if the passed col adds to the previous state, returns largest valid integer after Checks
+#assume column selected is added, look at all possible moves around it to see if there are openings for n sequential states, if so, this is valid. Find the largest such int and return it
+    cur_col = col
+    height = len(state["board"][col-1]) + 1
+    cur_height = height
+    player = state["your-token"]
+    cur_space = player
+    best_move = 1
+    cur_move = 1
+    right_dag = 0 # 1 + 4
+    left_dag = 0 # 3 + 6
+    horz = 0 # 2 + 5
+    closed = False
+    for x in range (1,5):
+        if x is 1:
+            while cur_space is player:
+                cur_height = cur_height - 1
+                cur_col = cur_col - 1
+                if cur_height < 1 or cur_col < 1:
+                    closed = True
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+                        closed = True
+
+            cur_space = player
+            cur_height = height
+            cur_col = col
+
+            while cur_space is player:
+                cur_height = cur_height + 1
+                cur_col = cur_col + 1
+                if cur_height < 1 or cur_col > state["columns"]:
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    closed = False
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+
+        if cur_move >= state["connect_n"]:
+            return cur_move
+
+        if cur_move > best_move and closed is not True:
+            best_move = cur_move
+
+        cur_move = 1
+        cur_space = player
+        cur_height = height
+        cur_col = col
+        closed = False
+
+        if x is 2:
+            while cur_space is player:
+                cur_col = cur_col - 1
+                if cur_height < 1 or cur_col < 1:
+                    closed = True
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+                        closed = True
+
+            cur_space = player
+            cur_height = height
+            cur_col = col
+
+            while cur_space is player:
+                cur_col = cur_col + 1
+                if cur_height < 1 or cur_col > state["columns"]:
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    closed = False
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+
+        if cur_move >= state["connect_n"]:
+            return cur_move
+        if cur_move > best_move and closed is not True:
+            best_move = cur_move
+
+        cur_move = 1
+        cur_space = player
+        cur_height = height
+        cur_col = col
+
+        if x is 3:
+            while cur_space is player:
+                cur_height = cur_height + 1
+                cur_col = cur_col - 1
+                if cur_height < 1 or cur_col < 1:
+                    closed = True
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+                        closed = True
+
+            cur_space = player
+            cur_height = height
+            cur_col = col
+
+            while cur_space is player:
+                cur_height = cur_height - 1
+                cur_col = cur_col + 1
+                if cur_height < 1 or cur_col > state["columns"]:
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    closed = False
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'O'
+
+        if cur_move >= state["connect_n"]:
+            return cur_move
+
+        if cur_move > best_move and closed is not True:
+            best_move = cur_move
+
+        cur_move = 1
+        cur_space = player
+        cur_height = height
+        cur_col = col
+
+        if x is 4:
+            while cur_space is player:
+                cur_height = cur_height - 1
+                if cur_height < 1:
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'O'
+        if cur_move > best_move:
+            best_move = cur_move
+
+    return best_move
+
+def opponent_check(col, state):
+    cur_col = col
+    height = len(state["board"][col-1]) + 1
+    cur_height = height
+    player = None
+    if state["your-token"] is "R":
+        player = "Y"
+    else:
+        player = "R"
+    cur_space = player
+    best_move = 1
+    cur_move = 1
+    right_dag = 0 # 1 + 4
+    left_dag = 0 # 3 + 6
+    horz = 0 # 2 + 5
+    closed = False
+    for x in range (1,5):
+        if x is 1:
+            while cur_space is player:
+                cur_height = cur_height - 1
+                cur_col = cur_col - 1
+                if cur_height < 1 or cur_col < 1:
+                    closed = True
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+                        closed = True
+
+            cur_space = player
+            cur_height = height
+            cur_col = col
+
+            while cur_space is player:
+                cur_height = cur_height + 1
+                cur_col = cur_col + 1
+                if cur_height < 1 or cur_col > state["columns"]:
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    closed = False
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+
+        if cur_move >= state["connect_n"]:
+            return cur_move
+
+        if cur_move > best_move and closed is not True:
+            best_move = cur_move
+
+        cur_move = 1
+        cur_space = player
+        cur_height = height
+        cur_col = col
+        closed = False
+
+        if x is 2:
+            while cur_space is player:
+                cur_col = cur_col - 1
+                if cur_height < 1 or cur_col < 1:
+                    closed = True
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+                        closed = True
+
+            cur_space = player
+            cur_height = height
+            cur_col = col
+
+            while cur_space is player:
+                cur_col = cur_col + 1
+                if cur_height < 1 or cur_col > state["columns"]:
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    closed = False
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+
+        if cur_move >= state["connect_n"]:
+            return cur_move
+        if cur_move > best_move and closed is not True:
+            best_move = cur_move
+
+        cur_move = 1
+        cur_space = player
+        cur_height = height
+        cur_col = col
+
+        if x is 3:
+            while cur_space is player:
+                cur_height = cur_height + 1
+                cur_col = cur_col - 1
+                if cur_height < 1 or cur_col < 1:
+                    closed = True
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'opponent'
+                        closed = True
+
+            cur_space = player
+            cur_height = height
+            cur_col = col
+
+            while cur_space is player:
+                cur_height = cur_height - 1
+                cur_col = cur_col + 1
+                if cur_height < 1 or cur_col > state["columns"]:
+                    break
+                elif len(state["board"][cur_col-1]) < cur_height:
+                    closed = False
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'O'
+
+        if cur_move >= state["connect_n"]:
+            return cur_move
+
+        if cur_move > best_move and closed is not True:
+            best_move = cur_move
+
+        cur_move = 1
+        cur_space = player
+        cur_height = height
+        cur_col = col
+
+        if x is 4:
+            while cur_space is player:
+                cur_height = cur_height - 1
+                if cur_height < 1:
+                    break
+                else:
+                    if state["board"][cur_col-1][cur_height-1] is player:
+                        cur_space = player
+                        cur_move = cur_move + 1
+                    else:
+                        cur_space = 'O'
+        if cur_move > best_move:
+            best_move = cur_move
+
+    return best_move
+
+
+def get_connect_move(state):
+    my_best_move = 1
+    my_best_column = 1
+    opp_best_move = 1
+    opp_best_column = 1
+    for x in range(1, state["columns"]+1):
+        temp = valid_add(x, state)
+        opp_temp = opponent_check(x, state)
+        if temp > my_best_move:
+            my_best_move = temp
+            my_best_column = x
+
+        if opp_temp > opp_best_move:
+            opp_best_move = opp_temp
+            opp_best_column = x
+
+    if my_best_move > opp_best_move:
+        return {
+            "move": my_best_column,  # Column in which you will move (create mark "your-token")
+            "team-code": "eef8976e"  # Must match the code received in the state object
+        }
+
+
+    return {
+        "move": opp_best_column,  # Column in which you will move (create mark "your-token")
+        "team-code": "eef8976e"  # Must match the code received in the state object
+    }
+
 def get_move(state):
     # Your code can be called from here however you like
     # You are allowed the use of load_data() and save_data(info)
@@ -42,14 +412,17 @@ def get_move(state):
 
     player = state["your-token"] #Either "R" or "B"
     if (player == "R"):
-        opponent = "B"
+        opponent = "Y"
     else:
         opponent = "R"
 
     print(state["board"])
     h = 0 #initializing height h
-
-
+    print ("----------------")
+    print(state["board"][1])
+    print(valid_add(3, state))
+    print("-------------")
+    print(opponent_check(6,state))
 
     for i in range(num_columns): #choosing the height to go up to, since we dont want to add infinite spots going up, its good to have an upper bound on the board
         col = len(state["board"][i])
@@ -64,7 +437,7 @@ def get_move(state):
         "team-code": "eef8976e"  # Must match the code received in the state object
     }
 
-get_move(state)
+print(get_connect_move(state))
 
 
 def __winpositions(lines, player):
