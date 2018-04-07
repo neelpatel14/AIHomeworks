@@ -460,7 +460,7 @@ def find(depth, state, curr_player_token):
         for child in legal_moves:
             if child == None:
                 print("child == None (search)")
-            alpha = max(alpha, -find(depth - 1, child, opp_player_token))
+            alpha = max(alpha, -find(depth - 1, child, opp_player_token)) #why are we passing in opp_player token each time? then it changes at each recursive step
         return alpha
 
 
@@ -484,8 +484,161 @@ def simulate_move(state, column, token):
 
 def eval_game(depth, state, curr_player_token):
     #This is where you can use my code (have to change how the counter works to count the streaks)
+
+    if curr_player_token == "R":
+        opp_color = "Y"
+    else:
+        opp_color = "R"
+    # get scores of human and IA player with theirs streaks
+    n = state["connect_n"]
+    ia_list = []
+    for i in range(n):
+    	ia_list.append(_find_streak(state, curr_player_token, i))
+
+
+   	human_list = []
+
+   	for j in range(n);
+   		human_list.append(state, opp_color, j)
+
+    max_num =  10^^(n+2)
+    # calculate and return the alpha
+    if human_list[-1] > 0:
+    	return -max_num - depth
+
+   	running_sum = 0
+   	ia_list.reverse()
+   	human_list.reverse()
+
+   	for i in range(len(ia_list) -1):
+   		running_sum += ia_list[i] * max_num/10^^(i+1) #STILL TRYING TO IMPLEMENT CORRECT THINGY
+
+
+    else:
+        return (ia_fours * 100000 + ia_threes * 100 + ia_twos * 10) - (human_threes * 100 + human_twos * 10) + depth
+
+
     return alpha
 
+def _find_streak(state, color, streak):
+    """
+    Search streaks of a color in the grid
+    :param grid: a grid of connect four
+    :param color: color of a player
+    :param streak: number of consecutive "color"
+    :return count: number of streaks founded
+    """
+    count = 0
+    grid = state["board"]
+    # for each box in the grid...
+    for i in xrange(state["columns"]):
+        for j in xrange(len(state["columns"][i])):
+            # ...that is of the color we're looking for...
+            if grid[i][j] == color:
+                # check if a vertical streak starts at index [i][j] of the grid game
+                count += _find_vertical_streak(i, j, state, streak)
+
+                # check if a horizontal streak starts at index [i][j] of the grid game
+                count += _find_horizontal_streak(i, j, state, streak)
+
+                # check if a diagonal streak starts at index [i][j] of the grid game
+                count += _find_diagonal_streak(i, j, state, streak)
+    # return the sum of streaks of length 'streak'
+
+    return count
+
+def _find_vertical_streak(row, col, state, streak):
+    """
+    Search vertical streak starting at index [row][col] in the grid
+    :param row: row the grid
+    :param col: column of the grid
+    :param grid: a grid of connect four
+    :param streak: number of "color" consecutive
+    :return: 0: no streak found, 1: streak founded
+    """
+    grid = state["board"]
+    consecutive_count = 0
+
+	#if row + streak - 1 < CONNECT_FOUR_GRID_HEIGHT:
+    for i in xrange(streak):
+        try:
+        	if grid[row][col] == grid[row + i][col]:
+        		consecutive_count += 1
+
+    	except Exception as e:
+    		print("Exception")
+        finally:
+        	break
+
+    if consecutive_count == streak:
+        return 1
+    else:
+        return 0
+
+def _find_horizontal_streak(row, col, state, streak):
+    """
+    Search horizontal streak starting at index [row][col] in the grid
+    :param row: row the grid
+    :param col: column of the grid
+    :param grid: a grid of connect four
+    :param streak: number of "color" consecutive
+    :return: 0: no streak found, 1: streak founded
+    """
+    grid = state["board"]
+    w = state["columns"]
+
+    consecutive_count = 0
+    if col + streak - 1 < w:
+        for i in xrange(streak):
+            if grid[row][col] == grid[row][col + i]:
+                consecutive_count += 1
+            else:
+                break
+
+    if consecutive_count == streak:
+        return 1
+    else:
+        return 0
+
+def _find_diagonal_streak(row, col, state, streak):
+    """
+    Search diagonal streak starting at index [row][col] in the grid
+    It check positive and negative slope
+    :param row: row the grid
+    :param col: column of the grid
+    :param grid: a grid of connect four
+    :param streak: number of "color" consecutive
+    :return total: number of streaks founded
+    """
+    total = 0
+	grid = state["board"]
+	w = state["columns"]
+    # check for diagonals with positive slope
+    consecutive_count = 0
+    #if row + streak - 1 < CONNECT_FOUR_GRID_HEIGHT and 
+    if col + streak - 1 < w:
+        for i in xrange(streak):
+            if grid[row][col] == grid[row + i][col + i]:
+                consecutive_count += 1
+            else:
+                break
+
+    if consecutive_count == streak:
+        total += 1
+
+    # check for diagonals with negative slope
+    consecutive_count = 0
+    if row - streak + 1 >= 0 and col + streak - 1 < w:
+        for i in xrange(streak):
+            if grid[row][col] == grid[row - i][col + i]:
+                consecutive_count += 1
+            else:
+                break
+
+    if consecutive_count == streak:
+        total += 1
+
+    return total
 
 # def __winpositions(lines, player):
 #     lines = __winlines(player)
