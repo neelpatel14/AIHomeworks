@@ -33,8 +33,6 @@ MEMBERS = ["np2ch", "ar9fh", "aml5ha"]  # Include a list of your members UVA IDs
 #         [],
 #     ]
 # }
-
-info_filename = 'ani_and_friends.json'
 info_json = {"chicken": {}}
 
 # This will load whatever dictionary you last saved, stub included to drive example,
