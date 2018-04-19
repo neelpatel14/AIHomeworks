@@ -333,7 +333,7 @@ while( True):
     make_move(get_move(test_state)["move"], "R")
     if find_streak(test_state,"R",test_state["connect_n"]):
         print("COMPUTER BEAT U ")
-        print(print_board)
+        print_board(test_state)
         break
     print_board(test_state)
     print("-------------------------")
@@ -341,5 +341,5 @@ while( True):
     make_move(human_move, "Y")
     if  find_streak(test_state,"Y",test_state["connect_n"]):
         print("HUMAN WINS!!! ")
-        print(print_board(test_state))
+        print_board(test_state))
         break
