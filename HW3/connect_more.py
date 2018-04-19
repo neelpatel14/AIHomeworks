@@ -317,9 +317,9 @@ def print_board(state):
                 print (grid[y][x], end="", flush=True)
             else:
                 print (" ", end="", flush=True)
-            print ("|", end="", flush=True)
+            print (" | ", end="", flush=True)
         print("")
-        print("---------------")
+        print("---------------------------")
 def make_move(move, token):
     test_state["board"][move].append(token)
 
@@ -327,6 +327,7 @@ while( True):
     make_move(get_move(test_state)["move"], "R")
     if find_streak(test_state,"R",test_state["connect_n"]):
         print("COMPUTER BEAT U ")
+        print(print_board)
         break
     print_board(test_state)
     print("-------------------------")
@@ -334,4 +335,5 @@ while( True):
     make_move(human_move, "Y")
     if  find_streak(test_state,"Y",test_state["connect_n"]):
         print("HUMAN WINS!!! ")
+        print(print_board)
         break
