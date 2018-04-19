@@ -305,4 +305,4 @@ def get_move(state):
         "team-code": state["team-code"]
     }
 
-print(get_move(copy.deepcopy(test_state)))
+print(get_move(test_state))
