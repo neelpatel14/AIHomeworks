@@ -5,7 +5,7 @@ import numpy
 import time
 
 TEAM_NAME = "ani and friends"
-MEMBERS = ["np2ch", "ar9fh", "aml5ha"]  # Include a list of your members’ UVA IDs
+MEMBERS = ["np2ch", "ar9fh", "aml5ha"]  # Include a list of your members UVA IDs
 
 # this is a test state function for you to drive the following test case with
 # NOTE: you will receive this when the game playing program calls your get_move
@@ -36,25 +36,32 @@ MEMBERS = ["np2ch", "ar9fh", "aml5ha"]  # Include a list of your members’ UVA 
 # }
 
 info_filename = 'chicken_info.json'
-info_json = {}
+info_json = {'chicken': {}}
 
 # This will load whatever dictionary you last saved, stub included to drive example,
 #   isn't actual function
 def load_info():
+    return info_json['chicken']
+    """
     info = {}
     if os.path.isfile(info_filename):
         with open(info_filename, 'r') as info_file:
             info = json.load(info_file)
     return info
+    """
 
 # This will save (and overwrite) whatever dictionary you last saved
 # Stub included to drive example, isn't actual function
-def save_info(info):
+def save_info(info, game):
+    if game == "chicken":
+        info_json['chicken'] = info
+    """
     if state["game"] == "chicken":
         new_info = load_info()
         new_info.update(info)
         with open(info_filename, 'w') as info_file:
             json.dump(new_info, info_file)
+    """
 
     """
     if state["game"] =="connect_more":
@@ -82,14 +89,14 @@ def get_chicken_move(state):
     if state["last-opponent-play"] is not None:
         info.setdefault("opponents",{}).setdefault(state["opponent-name"],[]).append(state["last-opponent-play"])
     move = 10
-    if "response-times" in info.keys() and len(info["response-times"]) > 5:
+    if "response-times" in info.keys() and len(info["response-times"]) > 10:
         mean, std = get_stats(info["response-times"])
         # print(("Think that mean %f std %f") % (mean, std))
-        move = min(mean + 0.84 * std,10)
+        move = min(mean + 1.29 * std,10)
     info.setdefault("moves", []).append(move)
     if state["last-outcome"] is not None:
         info.setdefault("outcomes", []).append(state["last-outcome"])
-    save_info(info)
+    save_info(info, state["game"])
     return {
         "move": move,
         "team-code": state["team-code"],
@@ -841,8 +848,8 @@ def get_move(state):
 #         "last-opponent-play": None,
 #         "last-outcome": None
 #     }
-#     mean = random.random() * 10
-#     std = random.random() * 3
+#     mean = random.random() * 3 
+#     std = random.random() * 1
 #     print(("Distribution has mean %f and std %f") % (mean, std))
 #     reaction_times = numpy.random.normal(mean, std, 100)
 #     your_score = 0
@@ -852,7 +859,6 @@ def get_move(state):
 #     crashes = 0
 #     ties = 0
 #     for i in range(100):
-#         print(("Round %d") % i)
 #         the_move = get_move(state)["move"]
 #         reac_time = reaction_times[i]
 #         if reac_time > 10:
@@ -864,32 +870,36 @@ def get_move(state):
 #         rand_s = 0
 #         state["prev-response-time"] = reac_time
 #         state["last-opponent-play"] = rand_move
-#         print(("Your move was %f") % the_move)
-#         print(("Opp move was %f") % rand_move)
-#         print(("Reaction time was %f") % reac_time)
+#         crash = False
 #         if rand_move < reac_time and the_move < reac_time:
 #             your_s = -10
 #             rand_s = -10
 #             crashes += 1
+#             crash = True
 #             print("You crashed!")
 #         elif rand_move < the_move:
 #             your_s = -1
 #             rand_s = 1
 #             losses += 1
-#             print("You lost!")
+#             #print("You lost!")
 #         elif the_move < rand_move:
 #             your_s = 1
 #             rand_s = -1
 #             wins += 1
-#             print("You won!")
+#             #print("You won!")
 #         else:
 #             ties += 1
-#             print("Tie")
+#             #print("Tie")
 #         state["last-outcome"] = your_s
 #         your_score += your_s
 #         opp_score += rand_s
-#         print(("YOUR SCORE: %d") % your_score)
-#         print(("OPPO SCORE: %d") % opp_score)
-#         print(("Crashes: %d, Losses:  %d, Wins: %d, Ties: %d") % (crashes, losses, wins, ties))
-#         print("")
+#         if crash or i >= 97:
+#             print(("Round %d") % i)
+#             print(("Your move was %f") % the_move)
+#             print(("Opp move was %f") % rand_move)
+#             print(("Reaction time was %f") % reac_time)
+#             print(("YOUR SCORE: %d") % your_score)
+#             print(("OPPO SCORE: %d") % opp_score)
+#             print(("Crashes: %d, Losses:  %d, Wins: %d, Ties: %d") % (crashes, losses, wins, ties))
+#             print("")
 #     print(("Distribution has mean %f and std %f") % (mean, std))

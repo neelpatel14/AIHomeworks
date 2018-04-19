@@ -1,4 +1,6 @@
 # Anirudh Ryali (ar9fh)
+# Arman Lokhandwala (aml5ha)
+# Neel Patel (np2ch)
 
 import Queue
 
@@ -283,7 +285,7 @@ def build_tree(node, ind, statement_set, names, forall_dict):
             forall_dict[(split[1], forall_pred)] = set()
     else:
         atomic = True
-        reverse_order = ["=", "ARROW", "OR", "AND"]
+        reverse_order = ["ARROW", "OR", "AND"]
         for i in range(len(reverse_order)):
             par = 0
             length = 0
