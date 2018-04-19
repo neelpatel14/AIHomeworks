@@ -320,6 +320,12 @@ def print_board(state):
             print (" | ", end="", flush=True)
         print("")
         print("---------------------------")
+
+    for a in range (0, state["columns"]):
+        print(a, end="", flush=True)
+        print (" | ", end="", flush=True)
+    print("")
+
 def make_move(move, token):
     test_state["board"][move].append(token)
 
