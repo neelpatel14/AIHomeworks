@@ -8,18 +8,17 @@ test_state = {
     "team-code": "eef8976e",
     "game": "connect_more",
     "opponent-name": "mighty_ducks",
-    "columns": 6,
-    "connect_n": 7,
+    "columns": 7,
+    "connect_n": 4,
     "your-token": "R",
     "board": [
-        ["Y","R","Y","Y","R"],
-        ["Y","R","Y","R","Y","R","R","Y"],
-        ["R","Y","R","Y","R","Y","Y"],
-        ["R","R","Y","Y","R","Y"],
-        ["R","Y","Y","R","R","Y"],
-        ["R","R","R","Y","Y","R"],
-	    ["R","Y","R","Y","R","Y","Y"],
-	    ["R","Y","Y","Y","R","Y"]
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+	    [],
     ]
 }
 
@@ -305,4 +304,34 @@ def get_move(state):
         "team-code": state["team-code"]
     }
 
-print(get_move(test_state))
+def print_board(state):
+    grid = state["board"]
+    largest_height = 0
+    for i in grid:
+        if len(i) > largest_height:
+            largest_height = len(i)
+
+    for x in range(largest_height-1, -1, -1):
+        for y in range(0,state["columns"]):
+            if x < len(grid[y]):
+                print (grid[y][x], end="", flush=True)
+            else:
+                print (" ", end="", flush=True)
+            print ("|", end="", flush=True)
+        print("")
+        print("---------------")
+def make_move(move, token):
+    test_state["board"][move].append(token)
+
+while( True):
+    make_move(get_move(test_state)["move"], "R")
+    if find_streak(test_state,"R",test_state["connect_n"]):
+        print("COMPUTER BEAT U ")
+        break
+    print_board(test_state)
+    print("-------------------------")
+    human_move = int(input("Make A Move: "))
+    make_move(human_move, "Y")
+    if  find_streak(test_state,"Y",test_state["connect_n"]):
+        print("HUMAN WINS!!! ")
+        break
