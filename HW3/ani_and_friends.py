@@ -1,3 +1,4 @@
+import numpy
 import random
 import json
 import os.path
@@ -79,16 +80,28 @@ def get_stats(arr):
 # returns a random move (for sake of example)
 def get_chicken_move(state):
     info = load_info() # info might be "{}" if first use, otherwise reads dictionary from your save file
-    if state["prev-response-time"] is not None:
+    if 'prev-response-time' in state and state["prev-response-time"] is not None:
         info.setdefault("response-times", []).append(state["prev-response-time"])
     # example for storing previous response times
-    if state["last-opponent-play"] is not None:
+    if 'last-opponent-play' in state and state["last-opponent-play"] is not None:
+        if "opponents" not in info or state['opponent-name'] not in info['opponents']:
+            info['opponent-sigmas'] = []
+            if 'last-mean' in info:
+                del info['last-mean']
         info.setdefault("opponents",{}).setdefault(state["opponent-name"],[]).append(state["last-opponent-play"])
     move = 10
-    if "response-times" in info.keys() and len(info["response-times"]) > 10:
+    if "response-times" in info.keys() and len(info["response-times"]) > 9:
+        sig = 1.29
         mean, std = get_stats(info["response-times"])
-        # print(("Think that mean %f std %f") % (mean, std))
-        move = min(mean + 1.29 * std,10)
+        if "last-mean" in info:
+            info['opponent-sigmas'].append((state['last-opponent-play']-info['last-mean'])/info['last-std'])
+            if len(info['opponent-sigmas']) > 3:
+                sig_mean, sig_std = get_stats(info['opponent-sigmas'])
+                if sig_std < 0.1 and sig_mean >= 1.24:
+                    sig = sig_mean - 0.01
+        info['last-mean'] = mean
+        info['last-std'] = std
+        move = min(mean + sig * std,10)
     info.setdefault("moves", []).append(move)
     if state["last-outcome"] is not None:
         info.setdefault("outcomes", []).append(state["last-outcome"])
@@ -854,7 +867,13 @@ def get_move(state):
 #     losses = 0
 #     crashes = 0
 #     ties = 0
+#     reacs = [] 
+#     sig_to_use = 1.25
 #     for i in range(100):
+#         if i % 10 == 0:
+#             state['opponent-name'] += "a"
+#             sig_to_use = (1.0 * random.randint(100, 400))/100.
+#             print("using sigma %f" % sig_to_use)
 #         print(("Round %d") % i)
 #         the_move = get_move(state)["move"]
 #         reac_time = reaction_times[i]
@@ -862,7 +881,10 @@ def get_move(state):
 #             reac_time = 10
 #         if reac_time < 0:
 #             reac_time = 0
-#         rand_move = random.random() * 10
+#         rand_move = 10
+#         if len(reacs) > 6:
+#             opp_mean, opp_std = get_stats(reacs)
+#             rand_move = opp_mean + sig_to_use*opp_std
 #         your_s = 0
 #         rand_s = 0
 #         state["prev-response-time"] = reac_time
@@ -895,4 +917,5 @@ def get_move(state):
 #         print(("OPPO SCORE: %d") % opp_score)
 #         print(("Crashes: %d, Losses:  %d, Wins: %d, Ties: %d") % (crashes, losses, wins, ties))
 #         print("")
+#         reacs.append(reac_time)
 #     print(("Distribution has mean %f and std %f") % (mean, std))
