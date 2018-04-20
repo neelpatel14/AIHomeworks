@@ -33,12 +33,12 @@ MEMBERS = ["np2ch", "ar9fh", "aml5ha"]  # Include a list of your members UVA IDs
 #         [],
 #     ]
 # }
-info_json = {"chicken": {}}
+ani_and_friends_info_json = {"chicken": {}}
 
 # This will load whatever dictionary you last saved, stub included to drive example,
 #   isn't actual function
 def load_info():
-    return info_json["chicken"]
+    return ani_and_friends_info_json["chicken"]
     """
     info = {}
     if os.path.isfile(info_filename):
@@ -50,7 +50,7 @@ def load_info():
 # This will save (and overwrite) whatever dictionary you last saved
 # Stub included to drive example, isn't actual function
 def save_info(info):
-    info_json["chicken"] = info
+    ani_and_friends_info_json["chicken"] = info
     """
     if True:#if state["game"] == "chicken":
         new_info = load_info()
